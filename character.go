@@ -37,15 +37,6 @@ type AllCharacters struct {
 	Results []Character `json:"results"`
 }
 
-func init() {
-	response, err := http.Get(BaseEndpoint + "character/")
-	if err != nil {
-		panic(err)
-	} else if response.StatusCode == 200 {
-		LogCharacter.Println("Character endpoint is working!")
-	}
-}
-
 // GetAllCharacters - get all characters of API
 func GetAllCharacters() {
 	LogCharacter.Printf("Get all characters")
