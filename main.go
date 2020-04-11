@@ -4,5 +4,6 @@ import "fmt"
 
 func main() {
 	// GetAllCharacters()
-	fmt.Println(GetCharacter(1).Episode)
+	// fmt.Println(GetCharacter(1).Episode)
+	fmt.Println(GetLocation(1))
 }

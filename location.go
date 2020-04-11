@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 )
 
 // Origin - origin of character
@@ -27,8 +28,22 @@ func CreateOriginCharacter(name, url string) *Origin {
 	return &Origin{Name: name, URL: url}
 }
 
-// GetLocation - create object location of character
-func GetLocation(name, url string) *Location {
+// GetLocation - get location by ID
+func GetLocation(id int) *Location {
+	responseLocation, errLocation := http.Get(BaseEndpoint + "/location/" + strconv.Itoa(id))
+	if errLocation != nil {
+		panic(errLocation)
+	}
+	var location Location
+	errDecode := json.NewDecoder(responseLocation.Body).Decode(&location)
+	if errDecode != nil {
+		panic(errDecode)
+	}
+	return &location
+}
+
+// GetLocationByCharacter - create object location of character
+func GetLocationByCharacter(name, url string) *Location {
 	responseLocation, errLocation := http.Get(url)
 	if errLocation != nil {
 		panic(errLocation)
