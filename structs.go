@@ -27,8 +27,8 @@ type Info struct {
 
 // AllLocations is struct of all locations
 type AllLocations struct {
-	Info    Info       `json:"info"`
-	Results []Location `json:"results"`
+	Info      Info       `json:"info"`
+	Locations []Location `json:"results"`
 }
 
 // Character is struct of character in API
@@ -49,6 +49,25 @@ type Character struct {
 
 // AllCharacters is struct of all characters
 type AllCharacters struct {
-	Info    Info        `json:"info"`
-	Results []Character `json:"results"`
+	Info       Info        `json:"info"`
+	Characters []Character `json:"results"`
 }
+
+// Episode is struct of episode in API
+type Episode struct {
+	ID         int      `json:"id,omitempty"`
+	Name       string   `json:"name,omitempty"`
+	Airdate    string   `json:"air_date,omitempty"`
+	Episode    string   `json:"episode,omitempty"`
+	Characters []string `json:"characters,omitempty"`
+	URL        string   `json:"url,omitempty"`
+	Created    string   `json:"created,omitempty"`
+}
+
+// AllEpisodes is struct of all characters
+type AllEpisodes struct {
+	Info     Info      `json:"info"`
+	Episodes []Episode `json:"results"`
+}
+
+// ToString - for each struct, why in each schema contain URL for others schemas
