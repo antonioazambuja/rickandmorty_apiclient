@@ -23,8 +23,8 @@ func GetLocation(id int) *Location {
 	return &location
 }
 
-// GetAllLocation - get all locations
-func GetAllLocation() *AllLocations {
+// GetAllLocations - get all locations
+func GetAllLocations() *AllLocations {
 	responseAllLocation, errAllLocation := http.Get(baseLocationURL)
 	if errAllLocation != nil {
 		panic(errAllLocation)
