@@ -3,5 +3,5 @@ package main
 import "fmt"
 
 func main() {
-	fmt.Println(GetAllLocation())
+	fmt.Println(GetEpisode(5))
 }
