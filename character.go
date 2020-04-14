@@ -2,41 +2,74 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 )
 
 const baseCharacterURL string = "https://rickandmortyapi.com/api/character/"
 
-// GetAllCharacters - get all characters of API
-func GetAllCharacters() {
-	LogCharacter.Printf("Get all characters")
-	responseGetAllCharacter, errGetAllCharacter := http.Get(baseCharacterURL)
-	if errGetAllCharacter != nil {
-		panic(errGetAllCharacter)
+// GetCharacter - get character by ID
+func GetCharacter(id int) Character {
+	LogCharacter.Printf("Get character by id: %d\n", id)
+	responseCharacter, errCharacter := http.Get(baseCharacterURL + strconv.Itoa(id))
+	if errCharacter != nil {
+		panic(errCharacter)
 	}
-	defer responseGetAllCharacter.Body.Close()
-	var result AllCharacters
-	errDecode := json.NewDecoder(responseGetAllCharacter.Body).Decode(&result)
+	var characterResponse CharacterResponse
+	errDecode := json.NewDecoder(responseCharacter.Body).Decode(&characterResponse)
 	if errDecode != nil {
 		panic(errDecode)
 	}
-	fmt.Println(result.Info)
+	return _ResponseToCharacter(characterResponse)
 }
 
-// GetCharacter - get character by id
-func GetCharacter(id int) *Character {
-	LogCharacter.Printf("Get character of ID: %d", id)
-	responseGetCharacter, errGetCharacter := http.Get(baseCharacterURL + strconv.Itoa(id))
-	if errGetCharacter != nil {
-		panic(errGetCharacter)
+// GetAllCharacters - get all characters
+func GetAllCharacters() []Character {
+	var characters []Character
+	LogCharacter.Println("Get all characters")
+	for i := 1; ; i++ {
+		responseAllCharacter, errAllCharacter := http.Get(baseCharacterURL + "?page=" + strconv.Itoa(i))
+		if errAllCharacter != nil {
+			panic(errAllCharacter)
+		}
+		var allCharactersResponse AllCharacterResponse
+		errDecode := json.NewDecoder(responseAllCharacter.Body).Decode(&allCharactersResponse)
+		if errDecode != nil {
+			panic(errDecode)
+		}
+		for _, character := range allCharactersResponse.Characters {
+			LogCharacter.Printf("Get character by id: %d\n", character.ID)
+			characters = append(characters, _ResponseToCharacter(character))
+		}
+		if allCharactersResponse.Info.Next == "" {
+			break
+		}
 	}
-	defer responseGetCharacter.Body.Close()
-	var character Character
-	errDecode := json.NewDecoder(responseGetCharacter.Body).Decode(&character)
-	if errDecode != nil {
-		panic(errDecode)
+	return characters
+}
+
+// _GetEpisodes - get characters of Character
+func _GetEpisodesIDS(characterResponse CharacterResponse) []int {
+	var episodes []int
+	for index := range characterResponse.Episodes {
+		episodes = append(episodes, index + 1)
 	}
-	return &character
+	return episodes
+}
+
+func _ResponseToCharacter(characterResponse CharacterResponse) Character {
+	return Character{
+		ID:       characterResponse.ID,
+		Name:     characterResponse.Name,
+		Status:   characterResponse.Status,
+		Species:  characterResponse.Species,
+		Type:     characterResponse.Type,
+		Gender:   characterResponse.Gender,
+		Origin:   ParseURL(characterResponse.Origin.URL),
+		Location: ParseURL(characterResponse.Location.URL),
+		Image:    characterResponse.Image,
+		Episodes: _GetEpisodesIDS(characterResponse),
+		URL:      characterResponse.URL,
+		Created:  characterResponse.Created,
+	}
 }
