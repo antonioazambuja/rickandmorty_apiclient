@@ -47,6 +47,16 @@ func GetAllEpisodes() []Episode {
 	return episodes
 }
 
+// GetMultipleEpisodes - get multiple episodes by array int
+func GetMultipleEpisodes(ids []int) []Episode {
+	LogEpisode.Printf("Get multiple episodes")
+	var episodes []Episode
+	for _, id := range ids {
+		episodes = append(episodes, GetEpisode(id))
+	}
+	return episodes	
+}
+
 // _GetCharacters - get characters of Episode
 func _GetCharacters(episodeResponse EpisodeResponse) []int {
 	var characters []int

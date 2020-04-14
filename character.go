@@ -23,6 +23,16 @@ func GetCharacter(id int) Character {
 	return _ResponseToCharacter(characterResponse)
 }
 
+// GetMultipleCharacters - get multiple characters by array int
+func GetMultipleCharacters(ids []int) []Character {
+	LogCharacter.Printf("Get multiple characters")
+	var characters []Character
+	for _, id := range ids {
+		characters = append(characters, GetCharacter(id))
+	}
+	return characters	
+}
+
 // GetAllCharacters - get all characters
 func GetAllCharacters() []Character {
 	var characters []Character
@@ -52,7 +62,7 @@ func GetAllCharacters() []Character {
 func _GetEpisodesIDS(characterResponse CharacterResponse) []int {
 	var episodes []int
 	for index := range characterResponse.Episodes {
-		episodes = append(episodes, index + 1)
+		episodes = append(episodes, index+1)
 	}
 	return episodes
 }

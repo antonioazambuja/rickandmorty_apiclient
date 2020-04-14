@@ -47,6 +47,16 @@ func GetAllLocations() []Location {
 	return locations
 }
 
+// GetMultipleLocations - get multiple locations by array int
+func GetMultipleLocations(ids []int) []Location {
+	LogLocation.Printf("Get multiple locations")
+	var locations []Location
+	for _, id := range ids {
+		locations = append(locations, GetLocation(id))
+	}
+	return locations	
+}
+
 // _GetResidents - get characters residents of Location
 func _GetResidents(locationResponse LocationResponse) []int {
 	var characters []int
