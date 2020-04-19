@@ -2,9 +2,20 @@ package main
 
 import (
 	"fmt"
+	"strconv"
 )
 
+func byID(character Character, comparation string) bool {
+	id, err := strconv.Atoi(comparation)
+	if err != nil {
+		panic(err)
+	}
+	if character.ID == id {
+		return true
+	}
+	return false
+}
+
 func main() {
-	multipleEpisodes := GetMultipleEpisodes([]int{1, 2, 3})
-	fmt.Println(multipleEpisodes)
+	fmt.Println(FilterCharacters(byID, "10"))
 }
