@@ -10,7 +10,6 @@ const baseEpisodeURL string = "https://rickandmortyapi.com/api/episode/"
 
 // GetEpisode - get episode by ID
 func GetEpisode(id int) Episode {
-	LogEpisode.Printf("Get episode by id: %d\n", id)
 	responseEpisode, errEpisode := http.Get(baseEpisodeURL + strconv.Itoa(id))
 	if errEpisode != nil {
 		panic(errEpisode)
@@ -25,7 +24,6 @@ func GetEpisode(id int) Episode {
 
 // GetAllEpisodes - get all episodes
 func GetAllEpisodes() []Episode {
-	LogEpisode.Println("Get all episodes")
 	var episodes []Episode
 	for i := 1; ; i++ {
 		responseAllEpisodes, errAllEpisodes := http.Get(baseEpisodeURL + "?page=" + strconv.Itoa(i))
@@ -47,9 +45,20 @@ func GetAllEpisodes() []Episode {
 	return episodes
 }
 
+// FilterEpisodes - get filtered episodes by parameter
+func FilterEpisodes(filterFunc func(episode Episode, comparation string) bool, comparation string) []Episode {
+	var episodes []Episode
+	allEpisodes := GetAllEpisodes()
+	for _, episode := range allEpisodes {
+		if filterFunc(episode, comparation) {
+			episodes = append(episodes, episode)
+		}
+	}
+	return episodes
+}
+
 // GetMultipleEpisodes - get multiple episodes by array int
 func GetMultipleEpisodes(ids []int) []Episode {
-	LogEpisode.Printf("Get multiple episodes")
 	var episodes []Episode
 	for _, id := range ids {
 		episodes = append(episodes, GetEpisode(id))

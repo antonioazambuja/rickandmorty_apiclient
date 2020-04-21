@@ -47,6 +47,18 @@ func GetAllLocations() []Location {
 	return locations
 }
 
+// FilterLocations - get filtered locations by parameter
+func FilterLocations(filterFunc func(location Location, comparation string) bool, comparation string) []Location {
+	var locations []Location
+	allLocations := GetAllLocations()
+	for _, location := range allLocations {
+		if filterFunc(location, comparation) {
+			locations = append(locations, location)
+		}
+	}
+	return locations
+}
+
 // GetMultipleLocations - get multiple locations by array int
 func GetMultipleLocations(ids []int) []Location {
 	LogLocation.Printf("Get multiple locations")
