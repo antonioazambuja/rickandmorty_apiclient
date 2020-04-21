@@ -14,7 +14,6 @@ func GetLocation(id int) Location {
 	if errLocation != nil {
 		panic(errLocation)
 	}
-	LogLocation.Printf("Get location by id: %d\n", id)
 	var locationResponse LocationResponse
 	errDecode := json.NewDecoder(responseLocation.Body).Decode(&locationResponse)
 	if errDecode != nil {
@@ -25,7 +24,6 @@ func GetLocation(id int) Location {
 
 // GetAllLocations - get all locations
 func GetAllLocations() []Location {
-	LogLocation.Println("Get all locations")
 	var locations []Location
 	for i := 1; ; i++ {
 		responseAllLocation, errAllLocation := http.Get(baseLocationURL + "?page=" + strconv.Itoa(i))
@@ -61,7 +59,6 @@ func FilterLocations(filterFunc func(location Location, comparation string) bool
 
 // GetMultipleLocations - get multiple locations by array int
 func GetMultipleLocations(ids []int) []Location {
-	LogLocation.Printf("Get multiple locations")
 	var locations []Location
 	for _, id := range ids {
 		locations = append(locations, GetLocation(id))

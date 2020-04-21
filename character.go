@@ -10,7 +10,6 @@ const baseCharacterURL string = "https://rickandmortyapi.com/api/character/"
 
 // GetCharacter - get character by ID
 func GetCharacter(id int) Character {
-	// LogCharacter.Printf("Get character by id: %d\n", id)
 	responseCharacter, errCharacter := http.Get(baseCharacterURL + strconv.Itoa(id))
 	if errCharacter != nil {
 		panic(errCharacter)
@@ -25,7 +24,6 @@ func GetCharacter(id int) Character {
 
 // GetMultipleCharacters - get multiple characters by array int
 func GetMultipleCharacters(ids []int) []Character {
-	// LogCharacter.Printf("Get multiple characters")
 	var characters []Character
 	for _, id := range ids {
 		characters = append(characters, GetCharacter(id))
@@ -36,7 +34,6 @@ func GetMultipleCharacters(ids []int) []Character {
 // GetAllCharacters - get all characters
 func GetAllCharacters() []Character {
 	var characters []Character
-	// LogCharacter.Println("Get all characters")
 	for i := 1; ; i++ {
 		responseAllCharacter, errAllCharacter := http.Get(baseCharacterURL + "?page=" + strconv.Itoa(i))
 		if errAllCharacter != nil {
@@ -48,7 +45,6 @@ func GetAllCharacters() []Character {
 			panic(errDecode)
 		}
 		for _, character := range allCharactersResponse.Characters {
-			// LogCharacter.Printf("Get character by id: %d\n", character.ID)
 			characters = append(characters, _ResponseToCharacter(character))
 		}
 		if allCharactersResponse.Info.Next == "" {
@@ -60,7 +56,6 @@ func GetAllCharacters() []Character {
 
 // FilterCharacters - get filtered characters by parameter
 func FilterCharacters(filterFunc func(character Character, comparation string) bool, comparation string) []Character {
-	// LogCharacter.Println("Get filtered characters")
 	var characters []Character
 	allCharacters := GetAllCharacters()
 	for _, character := range allCharacters {
