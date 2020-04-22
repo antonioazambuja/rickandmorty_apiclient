@@ -1,4 +1,4 @@
-package main
+package rickandmortyapiclient
 
 // Info - info get any all schema
 type Info struct {

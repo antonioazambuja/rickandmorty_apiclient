@@ -1,4 +1,4 @@
-package main
+package rickandmortyapiclient
 
 import (
 	"encoding/json"
@@ -9,17 +9,17 @@ import (
 const baseCharacterURL string = "https://rickandmortyapi.com/api/character/"
 
 // GetCharacter - get character by ID
-func GetCharacter(id int) Character {
+func GetCharacter(id int) (Character, error) {
 	responseCharacter, errCharacter := http.Get(baseCharacterURL + strconv.Itoa(id))
 	if errCharacter != nil {
-		panic(errCharacter)
+		return Character{}, errCharacter
 	}
 	var characterResponse CharacterResponse
 	errDecode := json.NewDecoder(responseCharacter.Body).Decode(&characterResponse)
 	if errDecode != nil {
-		panic(errDecode)
+		return Character{}, errDecode
 	}
-	return _ResponseToCharacter(characterResponse)
+	return _ResponseToCharacter(characterResponse), nil
 }
 
 // GetMultipleCharacters - get multiple characters by array int

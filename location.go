@@ -1,4 +1,4 @@
-package main
+package rickandmortyapiclient
 
 import (
 	"encoding/json"
@@ -63,7 +63,7 @@ func GetMultipleLocations(ids []int) []Location {
 	for _, id := range ids {
 		locations = append(locations, GetLocation(id))
 	}
-	return locations	
+	return locations
 }
 
 // _GetResidents - get characters residents of Location
