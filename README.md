@@ -8,7 +8,7 @@ Check for more informations about API: [Rick And Morty](https://rickandmortyapi.
 
 ## Usage
 
-```
+```golang
 package main
 
 import (
