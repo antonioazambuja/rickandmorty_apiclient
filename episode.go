@@ -2,6 +2,7 @@ package rickandmortyapiclient
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strconv"
 )
@@ -9,31 +10,31 @@ import (
 const baseEpisodeURL string = "https://rickandmortyapi.com/api/episode/"
 
 // GetEpisode - get episode by ID
-func GetEpisode(id int) Episode {
+func GetEpisode(id int) (Episode, error) {
 	responseEpisode, errEpisode := http.Get(baseEpisodeURL + strconv.Itoa(id))
-	if errEpisode != nil {
-		panic(errEpisode)
+	if errEpisode != nil || responseEpisode.StatusCode != 200 {
+		return Episode{}, errors.New("Episode API: error get episode")
 	}
 	var episodeResponse EpisodeResponse
 	errDecode := json.NewDecoder(responseEpisode.Body).Decode(&episodeResponse)
 	if errDecode != nil {
-		panic(errDecode)
+		return Episode{}, errDecode
 	}
-	return _ResponseToEpisode(episodeResponse)
+	return _ResponseToEpisode(episodeResponse), nil
 }
 
 // GetAllEpisodes - get all episodes
-func GetAllEpisodes() []Episode {
+func GetAllEpisodes() ([]Episode, error) {
 	var episodes []Episode
 	for i := 1; ; i++ {
 		responseAllEpisodes, errAllEpisodes := http.Get(baseEpisodeURL + "?page=" + strconv.Itoa(i))
 		if errAllEpisodes != nil {
-			panic(errAllEpisodes)
+			return []Episode{}, errAllEpisodes
 		}
 		var allEpisodes AllEpisodeResponse
 		errDecode := json.NewDecoder(responseAllEpisodes.Body).Decode(&allEpisodes)
 		if errDecode != nil {
-			panic(errDecode)
+			return []Episode{}, errDecode
 		}
 		for _, episode := range allEpisodes.Episodes {
 			episodes = append(episodes, _ResponseToEpisode(episode))
@@ -42,28 +43,35 @@ func GetAllEpisodes() []Episode {
 			break
 		}
 	}
-	return episodes
+	return episodes, nil
 }
 
 // FilterEpisodes - get filtered episodes by parameter
-func FilterEpisodes(filterFunc func(episode Episode, comparation string) bool, comparation string) []Episode {
+func FilterEpisodes(filterFunc func(episode Episode, comparation string) bool, comparation string) ([]Episode, error) {
 	var episodes []Episode
-	allEpisodes := GetAllEpisodes()
+	allEpisodes, errorGetAllEpisodes := GetAllEpisodes()
+	if errorGetAllEpisodes != nil {
+		return []Episode{}, errorGetAllEpisodes
+	}
 	for _, episode := range allEpisodes {
 		if filterFunc(episode, comparation) {
 			episodes = append(episodes, episode)
 		}
 	}
-	return episodes
+	return episodes, nil
 }
 
 // GetMultipleEpisodes - get multiple episodes by array int
-func GetMultipleEpisodes(ids []int) []Episode {
+func GetMultipleEpisodes(ids ...int) ([]Episode, error) {
 	var episodes []Episode
 	for _, id := range ids {
-		episodes = append(episodes, GetEpisode(id))
+		episode, err := GetEpisode(id)
+		if err != nil {
+			return []Episode{}, err
+		}
+		episodes = append(episodes, episode)
 	}
-	return episodes	
+	return episodes, nil
 }
 
 // _GetCharacters - get characters of Episode

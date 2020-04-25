@@ -2,6 +2,7 @@ package rickandmortyapiclient
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strconv"
 )
@@ -11,8 +12,8 @@ const baseCharacterURL string = "https://rickandmortyapi.com/api/character/"
 // GetCharacter - get character by ID
 func GetCharacter(id int) (Character, error) {
 	responseCharacter, errCharacter := http.Get(baseCharacterURL + strconv.Itoa(id))
-	if errCharacter != nil {
-		return Character{}, errCharacter
+	if errCharacter != nil || responseCharacter.StatusCode != 200 {
+		return Character{}, errors.New("Character API: error get character")
 	}
 	var characterResponse CharacterResponse
 	errDecode := json.NewDecoder(responseCharacter.Body).Decode(&characterResponse)
@@ -23,26 +24,30 @@ func GetCharacter(id int) (Character, error) {
 }
 
 // GetMultipleCharacters - get multiple characters by array int
-func GetMultipleCharacters(ids []int) []Character {
+func GetMultipleCharacters(ids ...int) ([]Character, error) {
 	var characters []Character
 	for _, id := range ids {
-		characters = append(characters, GetCharacter(id))
+		character, errCharacter := GetCharacter(id)
+		if errCharacter != nil {
+			return []Character{}, errCharacter
+		}
+		characters = append(characters, character)
 	}
-	return characters
+	return characters, nil
 }
 
 // GetAllCharacters - get all characters
-func GetAllCharacters() []Character {
+func GetAllCharacters() ([]Character, error) {
 	var characters []Character
 	for i := 1; ; i++ {
 		responseAllCharacter, errAllCharacter := http.Get(baseCharacterURL + "?page=" + strconv.Itoa(i))
 		if errAllCharacter != nil {
-			panic(errAllCharacter)
+			return []Character{}, errAllCharacter
 		}
 		var allCharactersResponse AllCharacterResponse
 		errDecode := json.NewDecoder(responseAllCharacter.Body).Decode(&allCharactersResponse)
 		if errDecode != nil {
-			panic(errDecode)
+			return []Character{}, errAllCharacter
 		}
 		for _, character := range allCharactersResponse.Characters {
 			characters = append(characters, _ResponseToCharacter(character))
@@ -51,19 +56,22 @@ func GetAllCharacters() []Character {
 			break
 		}
 	}
-	return characters
+	return characters, nil
 }
 
 // FilterCharacters - get filtered characters by parameter
-func FilterCharacters(filterFunc func(character Character, comparation string) bool, comparation string) []Character {
+func FilterCharacters(filterFunc func(character Character, comparation string) bool, comparation string) ([]Character, error) {
 	var characters []Character
-	allCharacters := GetAllCharacters()
+	allCharacters, err := GetAllCharacters()
+	if err != nil {
+		return []Character{}, err
+	}
 	for _, character := range allCharacters {
 		if filterFunc(character, comparation) {
 			characters = append(characters, character)
 		}
 	}
-	return characters
+	return characters, nil
 }
 
 // _GetEpisodes - get characters of Character

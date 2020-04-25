@@ -2,6 +2,7 @@ package rickandmortyapiclient
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strconv"
 )
@@ -9,31 +10,31 @@ import (
 const baseLocationURL string = "https://rickandmortyapi.com/api/location/"
 
 // GetLocation - get location by ID
-func GetLocation(id int) Location {
+func GetLocation(id int) (Location, error) {
 	responseLocation, errLocation := http.Get(baseLocationURL + strconv.Itoa(id))
-	if errLocation != nil {
-		panic(errLocation)
+	if errLocation != nil || responseLocation.StatusCode != 200 {
+		return Location{}, errors.New("Location API: error get location")
 	}
 	var locationResponse LocationResponse
 	errDecode := json.NewDecoder(responseLocation.Body).Decode(&locationResponse)
 	if errDecode != nil {
-		panic(errDecode)
+		return Location{}, errDecode
 	}
-	return _ResponseToLocation(locationResponse)
+	return _ResponseToLocation(locationResponse), nil
 }
 
 // GetAllLocations - get all locations
-func GetAllLocations() []Location {
+func GetAllLocations() ([]Location, error) {
 	var locations []Location
 	for i := 1; ; i++ {
 		responseAllLocation, errAllLocation := http.Get(baseLocationURL + "?page=" + strconv.Itoa(i))
 		if errAllLocation != nil {
-			panic(errAllLocation)
+			return []Location{}, errAllLocation
 		}
 		var allLocations AllLocationResponse
 		errDecode := json.NewDecoder(responseAllLocation.Body).Decode(&allLocations)
 		if errDecode != nil {
-			panic(errDecode)
+			return []Location{}, errDecode
 		}
 		for _, location := range allLocations.Locations {
 			locations = append(locations, _ResponseToLocation(location))
@@ -42,28 +43,35 @@ func GetAllLocations() []Location {
 			break
 		}
 	}
-	return locations
+	return locations, nil
 }
 
 // FilterLocations - get filtered locations by parameter
-func FilterLocations(filterFunc func(location Location, comparation string) bool, comparation string) []Location {
+func FilterLocations(filterFunc func(location Location, comparation string) bool, comparation string) ([]Location, error) {
 	var locations []Location
-	allLocations := GetAllLocations()
+	allLocations, errAllLocation := GetAllLocations()
+	if errAllLocation != nil {
+		return []Location{}, errAllLocation
+	}
 	for _, location := range allLocations {
 		if filterFunc(location, comparation) {
 			locations = append(locations, location)
 		}
 	}
-	return locations
+	return locations, nil
 }
 
 // GetMultipleLocations - get multiple locations by array int
-func GetMultipleLocations(ids []int) []Location {
+func GetMultipleLocations(ids ...int) ([]Location, error) {
 	var locations []Location
 	for _, id := range ids {
-		locations = append(locations, GetLocation(id))
+		location, err := GetLocation(id)
+		if err != nil {
+			return []Location{}, err
+		}
+		locations = append(locations, location)
 	}
-	return locations
+	return locations, nil
 }
 
 // _GetResidents - get characters residents of Location
